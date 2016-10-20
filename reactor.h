@@ -13,7 +13,9 @@ class Reactor
 	SteamGenerator generator_;
 
 	Pump coolant_pump_;
+	Pump coolant_pump_2_;
 	Pump main_feedwater_pump_;
+	Pump main_feedwater_pump_2_;
 	Pump emergency_feedwater_pump_;
 	Pump sump_pump_;
 	Pump high_pressure_injection_pump_;

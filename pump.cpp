@@ -1,6 +1,10 @@
 #include "pump.h"
+#include "tank.h"
+#include "physics.h"
 
+#include <cmath>
 #include <cstdlib>
+#include <cassert>
 #include <iostream>
 
 Pump::Pump()
@@ -10,6 +14,9 @@ Pump::Pump()
 	, powered_on_time_(0.0)
 	, is_powered_(false)
 	, is_failed_(false)
+	, take_tank_(0)
+	, add_tank_(0)
+	, is_flawless_(true)
 {
 
 }
@@ -17,11 +24,33 @@ Pump::Pump()
 void Pump::update(float dt)
 {
 	powered_on_time_ += dt;
-	if(powered_on_time_ > mean_time_to_fail_)
+	if(powered_on_time_ > mean_time_to_fail_ && !is_flawless_)
 	{
 		if((rand() % 1000) < 1)
 		{
 			is_failed_ = true;
+			std::cerr<<"A PUMP HAS FAILED\n\n\n\n\n\nFAILED FAILED FAILED\n";
+		}
+	}
+
+	if(is_powered_ && !is_failed_)
+	{
+		if(take_tank_ && add_tank_)
+		{
+			double quantity = flow_rate_ / 60.0 * dt;
+			double temperature = -1.0;
+			double thermal_energy_removed = take_tank_->take(quantity, temperature);
+			assert(quantity >= flow_rate_ / 60.0 * dt);
+
+
+			double added = add_tank_->add(quantity, temperature);
+			if(fabs(quantity-added) > 0.01)
+			{
+				// receiving tank is overfull
+				// put the fluid back into the first tank
+				take_tank_->add(quantity - added, temperature);
+			}
+			assert(added >= flow_rate_ / 60.0 * dt);
 		}
 	}
 }

@@ -8,6 +8,7 @@ SRC=\
 	core.cpp\
 	steamgenerator.cpp\
 	pump.cpp\
+	tank.cpp\
 
 OBJ=$(SRC:.cpp=.o)
 

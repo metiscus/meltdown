@@ -4,67 +4,56 @@
 #include <algorithm>
 #include <iostream>
 #include <cmath>
+#include <cassert>
 
 SteamGenerator::SteamGenerator()
 	: transfer_coefficient_(0.95)
-	, hot_quantity_(6000)
-	, hot_temperature_(0)
-	, cold_quantity_(6000)
-	, cold_temperature_(1.0)
+	, cold_tank_(60000.0, 2600*Physics::PSIToKPa)
+	, hot_tank_(60000.0, 2600*Physics::PSIToKPa)
 {
-	;
+	double quantity = 20000.0;
+	hot_tank_.add(quantity, 20);
+
+	quantity = 20000.0;
+	cold_tank_.add(quantity, 20);
 }
 
-void SteamGenerator::add_hot(float quantity, float temperature)
+void SteamGenerator::add_hot(double &quantity, double temperature)
 {
-	//std::cout<<"[SteamGenerator] hot in_temp: " << temperature << "\n";
-	//std::cout<<"[SteamGenerator] hot in_qty: " << quantity << "\n";
-	///std::cout<<"[SteamGenerator] hot before: " << hot_temperature_ << "\n";
-	double hot_energy_original = hot_quantity_ * 1e3 * hot_temperature_ * Constants::WaterSpecificHeat;
-	double hot_energy_in = temperature * quantity * 1e3 * Constants::WaterSpecificHeat;
-	double hot_energy = hot_energy_in + hot_energy_original;
-	hot_quantity_ += quantity;
-	hot_temperature_ = hot_energy / (hot_quantity_ * 1e3 * Constants::WaterSpecificHeat);
-	//std::cout<<"[SteamGenerator] hot after: " << hot_temperature_ << "\n";
+	quantity = hot_tank_.add(quantity, temperature);
 }
 
-void SteamGenerator::add_cold(float quantity, float temperature)
+void SteamGenerator::add_cold(double &quantity, double temperature)
 {
-	double energy_original = cold_quantity_ * 1e3 * cold_temperature_ * Constants::WaterSpecificHeat;
-	double energy_in = temperature * quantity * 1e3 * Constants::WaterSpecificHeat;
-	double energy = energy_in + energy_original;
-	cold_quantity_ += quantity;
-	cold_temperature_ = energy / (cold_quantity_ * 1e3 * Constants::WaterSpecificHeat);
+	quantity = cold_tank_.add(quantity, temperature);
 }
 
 void SteamGenerator::update(float dt)
 {
 	//todo: improve this
-	double hot_energy  = hot_quantity_ * 1e3 * hot_temperature_ * Constants::WaterSpecificHeat;
-	double cold_energy = cold_quantity_ * 1e3 * cold_temperature_ * Constants::WaterSpecificHeat;
-	double energy_transfered = transfer_coefficient_ * std::max(hot_temperature_ - cold_temperature_, 0.0f) * fabs(hot_energy - cold_energy);
+	double hot_energy  = hot_tank_.get_thermal_energy();
+	double cold_energy = cold_tank_.get_thermal_energy();
+	double energy_transfered = transfer_coefficient_ * std::min(1.0, std::max(hot_tank_.get_temperature() - cold_tank_.get_temperature(), 0.0)) * fabs(hot_energy - cold_energy);
+	assert(energy_transfered <= hot_energy);
 	//std::cout<<"[SteamGenerator] hot energy: " << hot_energy << "\n";
 	//std::cout<<"[SteamGenerator] cold energy: " << cold_energy << "\n";
 	//std::cout<<"[SteamGenerator] energy transferred: " << energy_transfered << "\n";
 
-	cold_energy += energy_transfered;
-	hot_energy -= energy_transfered;
+	cold_tank_.transfer_thermal_energy(energy_transfered);
+	hot_tank_.transfer_thermal_energy(-energy_transfered);
 
-	hot_temperature_  = hot_energy / hot_quantity_ * 1e-3 / Constants::WaterSpecificHeat;
-	cold_temperature_ = cold_energy / cold_quantity_ * 1e-3 / Constants::WaterSpecificHeat;
-
-	//std::cout<<"[SteamGenerator] hot: " << hot_temperature_ << "\n";
-	//std::cout<<"[SteamGenerator] cold: " << cold_temperature_ << "\n";
+	//std::cout<<"[SteamGenerator] hot: " << hot_tank_.get_temperature() << "\n";
+	//std::cout<<"[SteamGenerator] cold: " << cold_tank_.get_temperature() << "\n";
 }
 
-float SteamGenerator::remove_hot(float quantity)
+double SteamGenerator::remove_hot(double quantity)
 {
-	hot_quantity_ -= quantity;
-	return hot_temperature_;
+	double temp;
+	return hot_tank_.take(quantity, temp);
 }
 
-float SteamGenerator::remove_cold(float quantity)
+double SteamGenerator::remove_cold(double quantity)
 {
-	cold_quantity_ -= quantity;
-	return cold_temperature_;
+	double temp;
+	return cold_tank_.take(quantity, temp);
 }

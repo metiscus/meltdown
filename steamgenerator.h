@@ -1,22 +1,25 @@
 #pragma once
 
+#include "tank.h"
+
 class SteamGenerator
 {
 	float transfer_coefficient_;
-	float hot_quantity_;
-	float hot_temperature_;
-	float cold_quantity_;
-	float cold_temperature_;
 
+	Tank cold_tank_;
+	Tank hot_tank_;
 
 public:
 	SteamGenerator();
 
-	void add_hot(float quantity, float temperature);
-	void add_cold(float quantity, float temperature);
+	void add_hot(double& quantity, double temperature);
+	void add_cold(double& quantity, double temperature);
 
 	void update(float dt);
 
-	float remove_hot(float quantity);
-	float remove_cold(float quantity);
+	double remove_hot(double quantity);
+	double remove_cold(double quantity);
+
+	Tank* get_cold_tank() { return &cold_tank_; }
+	Tank* get_hot_tank() { return &hot_tank_; }
 };

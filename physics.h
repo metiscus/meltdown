@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace Constants
+namespace Physics
 {
 	// this is in units of j/g
 	static const double WaterSpecificHeat = 4.184;
