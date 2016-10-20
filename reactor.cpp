@@ -49,8 +49,8 @@ void Reactor::update(float dt)
 	time_ += dt;
 
 	int days = time_ / 3600 / 24;
-	int hours = time_ / 3600;
-	int minutes = time_ / 60;
+	int hours = (int)(time_ / 3600) % 24;
+	int minutes = (int)(time_ / 60) % 60;
 	int seconds = ((int)time_) % 60;
 
 	std::cerr<<"Simulation time [Day: " << days + 1 << " " << hours << ":" << minutes << ":" << seconds <<"]\n";
