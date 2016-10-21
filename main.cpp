@@ -1,6 +1,7 @@
 #include "reactor.h"
 #include <iostream>
 #include <SDL.h>
+#include <SDL_main.h>
 #include <cassert>
 #include <cstdio>
 #include "renderer_gl.h"
@@ -9,7 +10,7 @@
 int time_scale = 50;
 
 void draw_reactor(Reactor& reactor, RenderInterface& renderer);
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
 	RendererGL renderer;
 	renderer.create_window(1024, 768, "Meltdown");

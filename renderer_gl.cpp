@@ -10,7 +10,7 @@
 #include "stb/stb_truetype.h"
 #include "stb/stb_image.h"
 
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 
 #include <GL/gl.h>
 
@@ -310,6 +310,7 @@ void RendererGL::end()
 */
 bool RendererGL::load_data_file(const std::string& filename)
 {
+#if 0
     namespace fs = boost::filesystem;
     bool result = true;
     if(fs::exists(filename))
@@ -368,6 +369,8 @@ bool RendererGL::load_data_file(const std::string& filename)
     }
 
     return result;
+#endif
+    return false;
 }
 
 /*!
@@ -505,6 +508,7 @@ void RendererGL::store_render_op(RenderOp& op)
 
 bool RendererGL::load_texture(const char* filename)
 {
+#if 0
     namespace fs = boost::filesystem;
     assert(filename != nullptr);
     bool result = false;
@@ -538,6 +542,8 @@ bool RendererGL::load_texture(const char* filename)
         result = true;
     }
     return result;
+#endif
+    return false;
 }
 
 void RendererGL::load_sprites(const char* filename)

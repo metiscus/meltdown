@@ -1,0 +1,36 @@
+CC=x86_64-w64-mingw32-gcc
+CXX=x86_64-w64-mingw32-g++
+CXXFLAGS=-g -MMD -O0 -Wall
+LDFLAGS=-LSDL2-2.0.3
+
+sdl2_cflags  := $(shell /usr/x86_64-w64-mingw32/bin/sdl2-config --cflags)
+sdl2_libs    := $(shell /usr/x86_64-w64-mingw32/bin/sdl2-config --static-libs)
+
+CFLAGS := -I/usr/x86_64-w64-mingw32/include
+CXXFLAGS := $(CXXFLAGS) $(sdl2_cflags)
+LDFLAGS  := $(LDFLAGS) $(sdl2_libs) -lopengl32 $(boost_libs) -static-libstdc++
+
+default: meltdown
+
+SRC=\
+	main.cpp\
+	reactor.cpp\
+	core.cpp\
+	steamgenerator.cpp\
+	pump.cpp\
+	tank.cpp\
+	renderer_gl.cpp\
+	stb/stb_image.cpp\
+	stb/stb_truetype.cpp\
+	vmath.cpp
+
+OBJ=$(SRC:.cpp=.o)
+
+meltdown: $(SRC) $(OBJ)
+	$(CXX) $(CXXFLAGS) -o meltdown $(OBJ) $(LDFLAGS)
+
+clean:
+	- rm -f meltdown
+	- rm -f $(OBJ)
+
+-include *.d
