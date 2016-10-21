@@ -6,7 +6,7 @@
 #include <sstream>
 
 Reactor::Reactor()
-	: coolant_qty_(40000.0)
+	: coolant_qty_(60000.0)
 	, coolant_temperature_(100.0)
 	, time_(0)
 	, coolant_pump_("Reactor Coolant")
@@ -17,12 +17,12 @@ Reactor::Reactor()
 	, sump_pump_("Containment Building Sump")
 	, high_pressure_injection_pump_("High Pressure Injection")
 {
-	core_.set_control_rod_position(0.05);
+	//core_.set_control_rod_position(0.05);
 	core_.add_coolant(coolant_qty_, coolant_temperature_);
 //test
 	coolant_pump_.set_is_powered(true);
 	coolant_pump_.set_max_flow_rate(50000.0);
-	coolant_pump_.set_is_flawless(false);
+	coolant_pump_.set_is_flawless(true);
 	coolant_pump_.set_flow_rate(37852.5);
 	coolant_pump_.set_add_tank(core_.get_tank());
 	coolant_pump_.set_take_tank(generator_.get_hot_tank());
@@ -70,17 +70,35 @@ void Reactor::update(float dt)
 	std::cerr<<date_string_;
 
 	coolant_pump_2_.update(dt);
-	main_feedwater_pump_.update(dt);
+	if(coolant_pump_2_.get_is_failed())
+	{
+		coolant_pump_.set_is_powered(false);
+	}
+	//main_feedwater_pump_.update(dt);
+	coolant_pump_.update(dt);
+	
 	//high_pressure_injection_pump_.update(dt);
 	core_.update(dt);
 	generator_.update(dt);
-	coolant_pump_.update(dt);
+	
 
 	// for now let's simulate the turbines removing heat from the cold side of the steam generator
-	generator_.get_cold_tank()->transfer_thermal_energy(-generator_.get_cold_tank()->get_thermal_energy() * 0.01 * dt);
-	
+	double energy_removal = -generator_.get_cold_tank()->get_thermal_energy() * 0.0055 * dt;
+	generator_.get_cold_tank()->transfer_thermal_energy(energy_removal);
 
 	std::cerr<<"Reactor inner cooling loop temperature: "<<generator_.get_hot_tank()->get_temperature()<<"\n";
 	std::cerr<<"Reactor core temperature: "<<core_.get_temperature()<<"\n";
-	//std::cerr<<"Reactor steam generator return: "<<coolant_out_temp<<"\n";
+	std::cerr<<"Reactor steam generating: "<<-energy_removal / 1e6 / dt<<" MW\n";
+
+
+	// automatic control rod actuation
+	if(core_.get_temperature() > 400.0)
+	{
+		float rods = core_.get_control_rod_position();
+		if(rods < 1.0)
+		{
+			rods += 0.01;
+			core_.set_control_rod_position(rods);
+		}
+	}
 }

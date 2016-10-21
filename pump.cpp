@@ -31,12 +31,13 @@ void Pump::update(float dt)
 		if((rand() % 1000) < 1)
 		{
 			is_failed_ = true;
+			return;
 		}
 	}
 
 	if(is_failed_)
 	{
-		std::cerr<<"A PUMP HAS FAILED\n\n\n\n\n\nFAILED FAILED FAILED\n";
+	//	std::cerr<<"A PUMP HAS FAILED\n\n\n\n\n\nFAILED FAILED FAILED\n";
 	}
 
 	if(is_powered_ && !is_failed_)
@@ -48,7 +49,7 @@ void Pump::update(float dt)
 			double thermal_energy_removed = take_tank_->take(quantity, temperature);
 			assert(quantity >= flow_rate_ / 60.0 * dt);
 
-
+			//std::cerr<<"Pump: "<<name_<<" "<<add_tank_->get_maximum_capacity()<<" : "<<add_tank_->get_quantity()<<"\n";
 			double added = add_tank_->add(quantity, temperature);
 			if(fabs(quantity-added) > 0.01)
 			{
@@ -56,7 +57,12 @@ void Pump::update(float dt)
 				// put the fluid back into the first tank
 				take_tank_->add(quantity - added, temperature);
 			}
-			//assert(added >= flow_rate_ / 60.0 * dt);
+
+			if(added < flow_rate_ / 60.0 * dt)
+			{
+				std::cerr<<"Pump: "<<name_<<" has stalled. Could not pump. "<< added << "<" << flow_rate_ / 60.0 * dt << "\n";
+			}
+			assert(added >= flow_rate_ / 60.0 * dt);
 		}
 	}
 }

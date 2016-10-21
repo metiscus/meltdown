@@ -5,15 +5,15 @@
 
 Core::Core()
 	: control_rods_(1.0f)
-	, max_power_(1000e6f)
+	, max_power_(2568e6f)
 	//, temperature_coefficient_(0.002)
 	, temperature_coefficient_(0.002)
 	, boiling_(false)
 	, fuel_cladding_melt_temp_(726.0)
 	, fuel_cladding_integrity_(1.0)
-	, reactor_vessel_(60000.0, 2600*Physics::PSIToKPa)
+	, reactor_vessel_(100000.0, 2600*Physics::PSIToKPa)
 {
-	double quantity = 10000.0;
+	double quantity = 100000.0;
 	reactor_vessel_.add(quantity, 100.0);
 }
 
