@@ -28,4 +28,5 @@ public:
 	const float get_temperature() const;
 
 	Tank* get_tank() { return &reactor_vessel_; }
+	const Tank* get_tank() const { return &reactor_vessel_; }
 };

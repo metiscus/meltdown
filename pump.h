@@ -1,3 +1,5 @@
+#include <string>
+
 #pragma once
 
 class Tank;
@@ -15,8 +17,10 @@ class Pump
 	Tank *take_tank_;
 	Tank *add_tank_;
 
+	std::string name_;
+
 public:
-	Pump();
+	Pump(std::string name);
 
 	void update(float dt);
 
@@ -35,4 +39,6 @@ public:
 	void set_add_tank(Tank* tank) { add_tank_ = tank; }
 
 	inline void repair() { is_failed_ = false; powered_on_time_ = 0.0f; }
+
+	inline std::string get_name() const { return name_; }
 };
