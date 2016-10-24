@@ -11,6 +11,8 @@ Reactor::Reactor()
 	, time_(0)
 	, coolant_pump_("Reactor Coolant")
 	, coolant_pump_2_("Reactor Coolant Return")
+	, thermal_coolant_pump_("Reactor Coolant Thermal Flow")
+	, thermal_coolant_pump_2_("Reactor Coolant Return Thermal Flow")
 	, main_feedwater_pump_("Main Feedwater")
 	, main_feedwater_pump_2_("Main Feedwater Return")
 	, emergency_feedwater_pump_("Emergency Feedwater Return")
@@ -33,6 +35,20 @@ Reactor::Reactor()
 	coolant_pump_2_.set_flow_rate(37852.5);
 	coolant_pump_2_.set_add_tank(generator_.get_hot_tank());
 	coolant_pump_2_.set_take_tank(core_.get_tank());
+
+	thermal_coolant_pump_.set_is_powered(false);
+	thermal_coolant_pump_.set_max_flow_rate(1000.0);
+	thermal_coolant_pump_.set_is_flawless(true);
+	thermal_coolant_pump_.set_add_tank(core_.get_tank());
+	thermal_coolant_pump_.set_flow_rate(0.0);
+	thermal_coolant_pump_.set_take_tank(generator_.get_hot_tank());
+
+	thermal_coolant_pump_2_.set_is_powered(false);
+	thermal_coolant_pump_2_.set_max_flow_rate(1000.0);
+	thermal_coolant_pump_2_.set_is_flawless(true);
+	thermal_coolant_pump_2_.set_add_tank(generator_.get_hot_tank());
+	thermal_coolant_pump_2_.set_flow_rate(0.0);
+	thermal_coolant_pump_2_.set_take_tank(core_.get_tank());
 
 	high_pressure_injection_pump_.set_is_powered(false);
 	high_pressure_injection_pump_.set_max_flow_rate(50000.0);
@@ -72,15 +88,29 @@ void Reactor::update(float dt)
 	coolant_pump_2_.update(dt);
 	if(coolant_pump_2_.get_is_failed())
 	{
+		core_.set_scram(true);
+		std::cerr<<"***** The Reactor is SCRAMed *****\n";
 		coolant_pump_.set_is_powered(false);
+		thermal_coolant_pump_.set_is_powered(true);
+		thermal_coolant_pump_.set_flow_rate(0.05 * core_.get_temperature());
+		thermal_coolant_pump_2_.set_is_powered(true);
+		thermal_coolant_pump_2_.set_flow_rate(0.05 * core_.get_temperature());
 	}
+
+	thermal_coolant_pump_2_.update(dt);
 	//main_feedwater_pump_.update(dt);
 	coolant_pump_.update(dt);
 	
 	//high_pressure_injection_pump_.update(dt);
 	core_.update(dt);
 	generator_.update(dt);
-	
+	thermal_coolant_pump_.update(dt);	
+
+	//TODO: there is convective flow even when the pumps are broken
+	// because the reactor core generates so much heat, it is capable
+	// of keeping the fluid flowing around the cooling loop even when the pumps
+	// fail. This must be modeled
+
 
 	// for now let's simulate the turbines removing heat from the cold side of the steam generator
 	double energy_removal = -generator_.get_cold_tank()->get_thermal_energy() * 0.0055 * dt;
@@ -97,7 +127,7 @@ void Reactor::update(float dt)
 		float rods = core_.get_control_rod_position();
 		if(rods < 1.0)
 		{
-			rods += 0.01;
+			rods += 0.001;
 			core_.set_control_rod_position(rods);
 		}
 	}

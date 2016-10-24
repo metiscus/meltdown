@@ -14,6 +14,8 @@ class Core
 
 	Tank reactor_vessel_;
 
+	bool is_scrammed_;
+
 public:
 	Core();
 
@@ -30,4 +32,6 @@ public:
 	Tank* get_tank() { return &reactor_vessel_; }
 	const Tank* get_tank() const { return &reactor_vessel_; }
 	inline float get_control_rod_position() const { return control_rods_; }
+
+	void set_scram(bool scram) { is_scrammed_ = scram; }
 };

@@ -1,11 +1,13 @@
 #include "reactor.h"
+#include "color.h"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_main.h>
 #include <cassert>
 #include <cstdio>
 #include "renderer_gl.h"
-#include "color.h"
+#include "inputsystem.h"
+
 
 int time_scale = 50;
 
@@ -20,8 +22,24 @@ int main(int argc, char* argv[])
 
 	bool raise_rods = false;
 
-	for(int ii=0; ii<3000; ++ii)
+	auto input = InputSystem::get_instance();
+
+	for(int ii=0; ii<30000; ++ii)
 	{
+		input->update(1);
+
+		auto keyboard = input->get_keyboard();
+		if(keyboard.keys[SDLK_f] != Up)
+		{
+			time_scale -= 1;
+			if(time_scale < 0) time_scale = 0;
+		}
+		
+		if(keyboard.keys[SDLK_d] != Up)
+		{
+			time_scale += 1;
+		}
+
 		float rods = reactor.get_core().get_control_rod_position();
 		if(rods > 0.05 && !raise_rods)
 		{

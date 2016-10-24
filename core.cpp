@@ -7,11 +7,12 @@ Core::Core()
 	: control_rods_(1.0f)
 	, max_power_(2568e6f)
 	//, temperature_coefficient_(0.002)
-	, temperature_coefficient_(0.002)
+	, temperature_coefficient_(0.0000)
 	, boiling_(false)
 	, fuel_cladding_melt_temp_(726.0)
 	, fuel_cladding_integrity_(1.0)
 	, reactor_vessel_(100000.0, 2600*Physics::PSIToKPa)
+	, is_scrammed_(false)
 {
 	double quantity = 100000.0;
 	reactor_vessel_.add(quantity, 100.0);
@@ -37,6 +38,14 @@ void Core::set_max_power(float heat)
 
 void Core::update(float dt)
 {
+	if(is_scrammed_)
+	{
+		if(control_rods_ < 1.0f)
+		{
+			control_rods_ += 0.01 * dt;
+		}
+	}
+
 	double thermal_coefficient = reactor_vessel_.get_temperature() * temperature_coefficient_;
 	// boiling water moderates the reaction very poorly, I model this by increasing the temperature coefficient
 	// however, boiling water can absorb less heat (~50% by mass) so that needs modeled
@@ -46,11 +55,15 @@ void Core::update(float dt)
 		thermal_coefficient *= 1.1;
 	}
 
-	double energy_generated = dt * max_power_ * (1.0f - control_rods_) * (1.0 - thermal_coefficient);
-	//std::cerr<<"Core generated "<<energy_generated<< "energy\n";
-	//std::cerr<<"Pre xfer temp: " << reactor_vessel_.get_temperature() <<"\n";
+	double energy_generated_new    = dt * max_power_ * (1.0 - 0.95f * control_rods_) * (1.0 - thermal_coefficient);
+	static double energy_generated = energy_generated_new;
+	energy_generated = 0.9999 * energy_generated + 0.0001 * energy_generated_new;
+	std::cerr<<"Core generated "<<energy_generated<< "energy\n";
+	std::cerr<<"Pre xfer temp: " << reactor_vessel_.get_temperature() <<"\n";
 	reactor_vessel_.transfer_thermal_energy( energy_generated );
-	//std::cerr<<"Post xfer temp: " << reactor_vessel_.get_temperature() <<"\n";
+	std::cerr<<"Post xfer temp: " << reactor_vessel_.get_temperature() <<"\n";
+
+
 	double boiling_point = Physics::compute_water_boil_temperature(reactor_vessel_.get_pressure());
 	if(reactor_vessel_.get_temperature() > boiling_point)
 	{

@@ -17,6 +17,10 @@ class Reactor
 
 	Pump coolant_pump_;
 	Pump coolant_pump_2_;
+
+	Pump thermal_coolant_pump_;
+	Pump thermal_coolant_pump_2_;
+
 	Pump main_feedwater_pump_;
 	Pump main_feedwater_pump_2_;
 	Pump emergency_feedwater_pump_;

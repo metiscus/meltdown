@@ -21,7 +21,8 @@ SRC=\
 	renderer_gl.cpp\
 	stb/stb_image.cpp\
 	stb/stb_truetype.cpp\
-	vmath.cpp
+	vmath.cpp\
+	inputsystem.cpp\
 
 OBJ=$(SRC:.cpp=.o)
 
