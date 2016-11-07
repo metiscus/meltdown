@@ -23,6 +23,7 @@ SRC=\
 	stb/stb_truetype.cpp\
 	vmath.cpp\
 	inputsystem.cpp\
+	log.cpp\
 
 OBJ=$(SRC:.cpp=.o)
 

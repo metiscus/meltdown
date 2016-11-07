@@ -4,11 +4,22 @@
 
 namespace Physics
 {
-	// this is in units of j/g
-	static const double WaterSpecificHeat = 4.184;
-	static const double SteamSpecificHeat = 2.080;
+	// this is in units of j/(g*K)
+	static const double WaterSpecificHeat   = 4.184;
+	static const double SteamSpecificHeat   = 2.080;
+	static const double UraniumSpecificHeat = 0.116;
 
 	static const double PSIToKPa = 6.895;
+
+	inline double psi_to_kpa(double psi)
+	{
+		return psi * 6.895;
+	}
+
+	inline double kpa_to_psi(double kpa)
+	{
+		return kpa * 1.0 / (6.895);
+	}
 
 	inline double compute_water_boil_temperature(double pressure)
 	{
