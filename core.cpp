@@ -106,13 +106,9 @@ void Core::update_core(float dt)
 	double reynolds_number = (inlet_.get_volume_flow_rate() * reactor_diameter) / (kinematic_viscoscity * reactor_area);
 	std::cerr<<"The Reynolds number for the flow in the reactor is: "<<reynolds_number<<"\n";
 
-	constexpr double WaterConductivity = 0.6864; // W/(m*K)
-
-	// Compute the nusselt number
-	const double WaterPrandtlNumber = (1e-3 * Physics::WaterSpecificHeat * dynamic_viscosity_of_water) / WaterConductivity;
-	double nusselt = 0.664 * pow(WaterPrandtlNumber, 1.0/3.0) * sqrt(reynolds_number);
-
 	// compute the heat transfer coefficient for the reactor
+	constexpr double WaterConductivity = 0.6864; // W/(m*K)
+	const double WaterPrandtlNumber = (1e-3 * Physics::WaterSpecificHeat * dynamic_viscosity_of_water) / WaterConductivity;
 	constexpr double beta = 1200.0;
 	double grashof_number = 9.81 * beta * (fuel_temperature_ - inlet_.get_temperature()) * pow(reactor_diameter, 3.0) / kinematic_viscoscity;
 	double raleigh_number = grashof_number * WaterPrandtlNumber;
@@ -127,6 +123,19 @@ void Core::update_core(float dt)
 	// remove the energy from the rods and add it into the outbound stream
 	fuel_temperature_ -= (heat_flux * dt)/ ( 1e-3 * Physics::UraniumSpecificHeat * uranium_mass);
 	std::cerr<<"The uranium temperature is NOW: "<<fuel_temperature_<<"\n";
+
+	// conservation of mass
+	outlet_.set_mass_flow_rate(inlet_.get_mass_flow_rate());
+	outlet_.set_pressure(inlet_.get_pressure());
+	outlet_.set_density(inlet_.get_density());
+
+	// compute outlet temperature
+	double coolant_mass = inlet_.get_mass_flow_rate() * dt;
+	double temperature_change = (1.0 / Physics::WaterSpecificHeat) * heat_flux / (coolant_mass);
+	std::cerr<<"Temperature change of coolant is: "<<temperature_change<<"\n";
+	outlet_.set_temperature(inlet_.get_temperature() + temperature_change);
+
+	reactor_vessel_.transfer_thermal_energy( heat_flux * 1e3 );
 }
 
 void Core::update(float dt)
@@ -155,7 +164,7 @@ void Core::update(float dt)
 	energy_generated = 0.9999 * energy_generated + 0.0001 * energy_generated_new;
 	std::cerr<<"Core generated "<<energy_generated<< "energy\n";
 	std::cerr<<"Pre xfer temp: " << reactor_vessel_.get_temperature() <<"\n";
-	reactor_vessel_.transfer_thermal_energy( energy_generated );
+	//reactor_vessel_.transfer_thermal_energy( energy_generated );
 	std::cerr<<"Post xfer temp: " << reactor_vessel_.get_temperature() <<"\n";
 
 	double boiling_point = Physics::compute_water_boil_temperature(reactor_vessel_.get_pressure());
