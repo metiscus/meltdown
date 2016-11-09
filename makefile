@@ -13,6 +13,7 @@ default: meltdown
 
 SRC=\
 	main.cpp\
+	physics.cpp\
 	reactor.cpp\
 	core.cpp\
 	steamgenerator.cpp\

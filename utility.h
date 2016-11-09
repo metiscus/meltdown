@@ -82,7 +82,6 @@ namespace utility
 
         return ret;
     }
-
 }
 
 #endif // UTILITY_H_INCLUDED

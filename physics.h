@@ -5,11 +5,13 @@
 namespace Physics
 {
 	// this is in units of j/(g*K)
-	static const double WaterSpecificHeat   = 4.184;
-	static const double SteamSpecificHeat   = 2.080;
-	static const double UraniumSpecificHeat = 0.116;
+	static constexpr double WaterSpecificHeat   = 4.184;
+	static constexpr double SteamSpecificHeat   = 2.080;
+	static constexpr double UraniumSpecificHeat = 0.116;
 
-	static const double PSIToKPa = 6.895;
+	static constexpr double WaterVolumeExpansion = 1.72e-3;
+
+	static constexpr double PSIToKPa = 6.895;
 
 	inline double psi_to_kpa(double psi)
 	{
@@ -30,5 +32,17 @@ namespace Physics
 		//double boiling_point = 1.0 / ((1.0 / T0) - (R*log((pressure * PSIToPa)/P0)) / hvap);
 		double boiling_point = log((pressure * PSIToKPa) / 66.5238) / 0.015758;
 		return boiling_point;
+	}
+
+	namespace Units
+	{
+		enum Temperature
+		{
+			Kelvin,
+			Fahrenheit,
+			Celsius
+		};
+
+		double Convert(Temperature from, Temperature to, double value);
 	}
 }

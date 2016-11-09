@@ -2,11 +2,11 @@
 
 class Tank
 {
-	double quantity_; 			// kg
-	double temperature_;		// degrees Celsius
+	double quantity_; 			// g
+	double temperature_;		// kelvin
 	double thermal_energy_;		// joules
-	double maximum_capacity_;	// kg
-	double pressure_;			// kPa
+	double maximum_capacity_;	// g
+	double pressure_;			// Pa
 
 public:
 	Tank(double maximum_capacity, double pressure = 101.325);

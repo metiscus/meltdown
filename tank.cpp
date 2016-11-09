@@ -14,8 +14,6 @@ Tank::Tank(double maximum_capacity, double pressure)
 
 double Tank::add(double quantity, double temperature)
 {
-	//Note: quantity comes in as kg but the constants are per gram
-
 	const double water_boil_temperature = Physics::compute_water_boil_temperature(pressure_);
 	double specific_heat = Physics::WaterSpecificHeat;
 	if(temperature > water_boil_temperature)
@@ -28,11 +26,11 @@ double Tank::add(double quantity, double temperature)
 		quantity = maximum_capacity_ - quantity_;
 	}
 
-	double thermal_energy_added = (quantity * 1e3 * temperature) * specific_heat;
+	double thermal_energy_added = (quantity * temperature) * specific_heat;
 	thermal_energy_ += thermal_energy_added;
 	quantity_ += quantity;
 
-	temperature_ = thermal_energy_ / quantity_ * 1e-3 / specific_heat;
+	temperature_ = thermal_energy_ / (quantity_ * specific_heat);
 
 	return quantity;
 }
@@ -42,7 +40,7 @@ double Tank::take(double& quantity, double& temperature)
 	double thermal_energy_quantity = 0;
 
 	temperature = temperature_;
-	if(quantity < quantity_)
+	if(quantity >= quantity_)
 	{
 		quantity = quantity_;
 	}
@@ -54,10 +52,10 @@ double Tank::take(double& quantity, double& temperature)
 	else
 	{
 		double thermal_energy_xfer = quantity / quantity_;
-		if(temperature_ >= Physics::compute_water_boil_temperature(pressure_))
-		{
-			thermal_energy_xfer *= 0.5;
-		}
+		//if(temperature_ >= Physics::compute_water_boil_temperature(pressure_))
+		//{
+		//	thermal_energy_xfer *= 0.5;
+		//}
 
 		thermal_energy_quantity = thermal_energy_xfer * thermal_energy_;
 		thermal_energy_ -= thermal_energy_quantity;
@@ -70,5 +68,5 @@ double Tank::take(double& quantity, double& temperature)
 void Tank::transfer_thermal_energy(double energy)
 {
 	thermal_energy_ += energy;
-	temperature_ = thermal_energy_ / (quantity_ * 1e3 * Physics::WaterSpecificHeat);
+	temperature_ = thermal_energy_ / (quantity_ * Physics::WaterSpecificHeat);
 }

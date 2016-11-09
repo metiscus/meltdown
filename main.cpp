@@ -7,9 +7,10 @@
 #include <cstdio>
 #include "renderer_gl.h"
 #include "inputsystem.h"
+#include <unistd.h>
 
 
-int time_scale = 50;
+int time_scale = 5;
 
 void draw_reactor(Reactor& reactor, RenderInterface& renderer);
 int main(int argc, char* argv[])

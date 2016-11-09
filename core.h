@@ -21,9 +21,9 @@ class Core
 
 	const double fuel_linear_heat_rate_;
 	double fuel_rod_count_;
-	double fuel_rod_radius_;
-	double fuel_rod_length_;
-	double fuel_temperature_;
+	double fuel_rod_radius_;	// meters
+	double fuel_rod_length_;	// meters
+	double fuel_temperature_;	// kelvin
 
 	double power_hours_;
 
@@ -50,6 +50,12 @@ public:
 	void set_scram(bool scram) { is_scrammed_ = scram; }
 
 	void set_uranium_mass(double mass);
+
+	inline const Flow& get_inlet() const { return inlet_; }
+	inline Flow& get_inlet() { return inlet_; }
+
+	inline const Flow& get_outlet() const { return outlet_; }
+	inline Flow& get_outlet() { return outlet_; }
 
 private:
 	void update_core(float dt);

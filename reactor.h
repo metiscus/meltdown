@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "flow.h"
 
 class Reactor
 {
@@ -30,6 +31,8 @@ class Reactor
 	std::vector<Pump*> pumps_;
 
 	std::string date_string_;
+
+	Tank flow_tank_;
 
 public:
 	Reactor();
